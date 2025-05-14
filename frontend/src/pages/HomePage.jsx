@@ -13,7 +13,7 @@ const HomePage = () => {
 
 useEffect(() => {
   console.log("Current products state:", products); // Log the products from Zustand state
-}, [products]);
+}, [fetchProduct]);
 
   console.log("products", products); // Check if products have been fetched
   console.log("user", user); // Check the user state
