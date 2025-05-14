@@ -5,10 +5,8 @@ import Product from './models/product.models.js';
 import User from './models/user.model.js'
 import dotenv from 'dotenv';
 import userRoutes from './routes/user.route.js'
-import bcrypt from 'bcrypt';
-import crypto from 'crypto'; 
-import jwt from 'jsonwebtoken';
-import mongoose from 'mongoose';
+import session from 'express-session';
+import MongoStore from 'connect-mongo';
 
 dotenv.config();
 const PORT = process.env.PORT;
@@ -18,6 +16,20 @@ app.use(express.json());
 app.use("/api/products",productRoutes);
 app.use("/api/user",userRoutes );
 
+app.use(session({
+  secret: process.env.JWT_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URI,
+  }),
+  cookie: {
+    maxAge: 1000 * 60 * 60, // 1 hour
+    sameSite: 'lax',
+    httpOnly: true,
+    secure: false // set to true in production with HTTPS
+  }
+}));
   
   app.listen(PORT, () => {
     connectDB();

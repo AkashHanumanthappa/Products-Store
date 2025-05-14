@@ -1,16 +1,65 @@
-import { Button, Container, Flex, HStack, Text, useColorMode } from '@chakra-ui/react';
-import React from 'react';
+import React, { useState, useEffect } from 'react'; // Import useState and useEffect
+import { Button, Container, Flex, HStack, Text, useColorMode, Box, Spinner } from '@chakra-ui/react';
 import { FaRegPlusSquare } from "react-icons/fa";
 import { useAuthStore } from '../store/user';
 import { MdOutlineLightMode, MdLightMode } from "react-icons/md";
 import LogoutButton from './Logout';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const NavBar = () => {
   const { colorMode, toggleColorMode } = useColorMode();
-  const user = useAuthStore((state) => state.user); // ✅ use selector
+  const [user, setUser] = useState(null);  // User state to store the user info
+  const [loading, setLoading] = useState(true);  // Loading state
+  const navigate = useNavigate(); // Use navigate for redirection
+  
+  useEffect(() => {
+    const token = localStorage.getItem('token'); // Get token from localStorage
 
-  console.log("Current user:", user); // 🔍 Debug
+    if (!token) {
+      navigate('/login'); // Redirect to login if no token
+      return;
+    }
+
+    const fetchUser = async () => {
+      try {
+        const response = await fetch('/api/user/me', {
+          headers: {
+            Authorization: `Bearer ${token}`, // Use token for authorization
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data.user); // Set user state
+        } else {
+          localStorage.removeItem('token'); // Clear token if response is not OK
+          navigate('/login'); // Redirect to login
+        }
+      } catch (error) {
+        console.error('Failed to fetch user', error);
+        navigate('/login'); // Handle errors and redirect to login
+      } finally {
+        setLoading(false); // Set loading to false once fetching is done
+      }
+    };
+
+    fetchUser(); // Fetch user when component mounts
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token'); // Remove token from localStorage on logout
+    navigate('/login'); // Redirect to login page
+  };
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+        <Spinner size="xl" />  {/* Display a spinner while loading */}
+      </Box>
+    );
+  }
+
+  console.log("Current user:", user); // Debug log to check user state
 
   return (
     <Container maxW={"1140px"} px={4}>
@@ -58,7 +107,7 @@ const NavBar = () => {
               <Link to={"/dashboard"}>
                 <Button>Dashboard</Button>
               </Link>
-              <LogoutButton />
+              <LogoutButton onClick={handleLogout} />
             </>
           )}
         </HStack>
@@ -68,4 +117,5 @@ const NavBar = () => {
 };
 
 export default NavBar;
+
 

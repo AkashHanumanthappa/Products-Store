@@ -1,72 +1,66 @@
-// src/components/Login.jsx
-import React, { useState } from "react";
-import { Box, Button, FormControl, FormLabel, Input, VStack, Heading } from "@chakra-ui/react";
-import { useAuthStore } from '../store/user.js';
-import { useToast } from "@chakra-ui/react";
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+// src/pages/LoginPage.jsx
+import React, { useState } from 'react';
+import {
+  Box,
+  Button,
+  Input,
+  FormControl,
+  FormLabel,
+  Heading,
+  Text,
+  Stack,
+  Spinner,
+} from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
 
-const Login = () => {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+const LoginPage = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const toast = useToast();
-  const { loginUser } = useAuthStore();
-  const navigate = useNavigate(); // Initialize the navigate function
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  const handleLogin = async () => {
-    const { success, message } = await loginUser(formData);
-
-    if (success) {
-      toast({
-        title: "Login Successful",
-        description: message,
-        status: "success",
-        duration: 5000,
-        isClosable: true,
+    try {
+      const response = await fetch('/api/user/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
       });
 
-      navigate("/"); // Redirect to a dashboard or home page
-    } else {
-      toast({
-        title: "Error",
-        description: message,
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem('token', data.token);
+        navigate('/');
+      } else {
+        setError(data.message || 'Login failed');
+      }
+    } catch (err) {
+      setError('Something went wrong');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    handleLogin();
-  };
-
   return (
-    <Box maxW="md" mx="auto" mt={10} p={6} boxShadow="md" borderRadius="md">
-      <Heading mb={6} textAlign="center">
-        Login
-      </Heading>
-      <form onSubmit={handleSubmit}>
-        <VStack spacing={4}>
+    <Box maxW="400px" mx="auto" mt="50px" p={5} borderWidth={1} borderRadius="md">
+      <Heading mb={6}>Login</Heading>
+      <form onSubmit={handleLogin}>
+        <Stack spacing={4}>
           <FormControl isRequired>
             <FormLabel>Email</FormLabel>
             <Input
               type="email"
-              name="email"
-              placeholder="Enter email"
-              value={formData.email}
-              onChange={handleChange}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
             />
           </FormControl>
 
@@ -74,20 +68,27 @@ const Login = () => {
             <FormLabel>Password</FormLabel>
             <Input
               type="password"
-              name="password"
-              placeholder="Enter password"
-              value={formData.password}
-              onChange={handleChange}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
             />
           </FormControl>
 
-          <Button colorScheme="teal" type="submit" width="full">
+          {error && <Text color="red.500">{error}</Text>}
+
+          <Button
+            type="submit"
+            colorScheme="blue"
+            isLoading={loading}
+            loadingText="Logging in"
+            width="full"
+          >
             Login
           </Button>
-        </VStack>
+        </Stack>
       </form>
     </Box>
   );
 };
 
-export default Login;
+export default LoginPage;

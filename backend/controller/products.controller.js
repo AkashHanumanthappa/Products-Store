@@ -12,12 +12,12 @@ export const getProduct =async (req,res) => {
 };
 
 export const createProduct =async(req,res) => {
-    const { name, price, image }=req.body;
+    const { name, price, image, user_id }=req.body;
 
     if(!name||!price||!image){
         return res.status(400).json({success:false, message:"Please fill all the fields"});
     }
-    const newProduct= new Product(product)
+    const newProduct= new Product({ name, price, image, user_id })
     
     try{
         await newProduct.save();
@@ -33,6 +33,9 @@ export const deleteProduct =  async (req,res) =>{
     const { id } = req.params;
 
     console.log("id:", id);
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+  return res.status(400).json({ success: false, message: "Invalid product ID" });
+}
     try{
         await Product.findByIdAndDelete(id);
         res.status(200).json({success : true , message:"post deleted successfully"});

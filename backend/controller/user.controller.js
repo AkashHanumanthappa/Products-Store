@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import crypto from 'crypto'; 
 import jwt from 'jsonwebtoken';
 
+
 export const createUser = async (req, res) => {
     const { name, email, password, confirmPassword } = req.body;
   
@@ -53,22 +54,48 @@ export const loginUser = async (req, res) => {
         return res.status(400).json({ success: false, message: "Invalid credentials" });
       }
   
-      const dynamicSecret = crypto.randomBytes(64).toString('hex'); 
   
       const token = jwt.sign(
         { userId: user._id, email: user.email },
-        dynamicSecret,  
-        { expiresIn: '1h' } 
+        process.env.JWT_SECRET,  // ✅ static and secure
+        { expiresIn: '1h' }
       );
   
       res.status(200).json({
         success: true,
         message: "Login successful",
         token: token,
-        secretUsed: dynamicSecret 
+        secretUsed: process.env.JWT_SECRET 
       });
     } catch (error) {
         console.error("Error in login:", error.message);
         res.status(500).json({ success: false, message: "Server error" });
       }
     };
+
+    
+export const me = async (req, res) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'Unauthorized: No token provided' });
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  try {
+    // Use process.env.JWT_SECRET to get the secret from your .env file
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Optionally fetch the user from DB if needed
+    const user = await User.findById(decoded.userId).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ user });
+  } catch (error) {
+    return res.status(401).json({ message: 'Invalid or expired token' });
+  }
+};

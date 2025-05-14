@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 export const useAuthStore = create((set) => {
-  // Load user from localStorage safely
+  // Load user from localStorage safely on store initialization
   let savedUser = null;
   try {
     const userData = localStorage.getItem("user");
@@ -14,8 +14,12 @@ export const useAuthStore = create((set) => {
   }
 
   return {
-    user: savedUser,
-    setUser: (user) => set({ user }),
+    user: savedUser, // Initial user state from localStorage (if available)
+
+    setUser: (user) => {
+      set({ user });
+      localStorage.setItem("user", JSON.stringify(user));
+    },
 
     registerUser: async (newUser) => {
       if (!newUser.name || !newUser.email || !newUser.password) {
@@ -80,10 +84,8 @@ export const useAuthStore = create((set) => {
         }
 
         const data = await res.json();
-
         set({ user: data.user });
         localStorage.setItem("user", JSON.stringify(data.user));
-
         return { success: true, message: "Login successful!" };
       } catch (err) {
         return {
@@ -96,6 +98,34 @@ export const useAuthStore = create((set) => {
     logoutUser: () => {
       localStorage.removeItem("user");
       set({ user: null });
+    },
+
+    isLoggedIn: () => {
+      const state = useAuthStore.getState();
+      return !!state.user;
+    },
+
+    fetchUser: async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const res = await fetch("/api/user/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) throw new Error("Unauthorized");
+
+        const data = await res.json();
+        set({ user: data.user });
+        localStorage.setItem("user", JSON.stringify(data.user));
+      } catch (err) {
+        console.warn("Failed to fetch user from /api/user/me:", err.message);
+        localStorage.removeItem("user");
+        set({ user: null });
+      }
     },
   };
 });

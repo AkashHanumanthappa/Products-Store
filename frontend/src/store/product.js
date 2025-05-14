@@ -15,6 +15,7 @@ export const useProductStore = create((set) => ({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify(newProduct),
       });
@@ -32,13 +33,32 @@ export const useProductStore = create((set) => ({
       return { success: false, message: `Request failed: ${err.message}` };
     }
   },
-  fetchProduct: async () =>{
+fetchProduct: async () => {
+  console.log("Fetching products..."); // Debugging log
+  try {
     const res = await fetch("/api/products");
+
+    // Check if response is successful before processing
+    if (!res.ok) {
+      const errorText = await res.text(); // To catch any non-JSON error responses
+      console.error("Failed to fetch products:", errorText); // Log the error response body
+      return;
+    }
+
+    // If the response is successful, process the JSON data
     const data = await res.json();
-    set({
-      products:data.data
-    });
-  },
+    console.log("Fetched products:", data); // Log the fetched data
+
+    // Update Zustand state with the products array
+    if (data.success && Array.isArray(data.data)) {
+      set({ products: data.data }); // Update Zustand state with products
+    } else {
+      console.error("Invalid product data structure:", data);
+    }
+  } catch (error) {
+    console.error("Error fetching products:", error); // Log any errors that happen during the fetch
+  }
+},
   deleteProduct: async (pid) => {
     try {
       const res = await fetch(`/api/products/${pid}`, {
