@@ -48,11 +48,18 @@ const NavBar = () => {
           </Button>
 
           {!user ? (
+            // If user is not logged in, show login button
             <Link to={"/login"}>
               <Button>Login</Button>
             </Link>
           ) : (
-            <LogoutButton />
+            // If user is logged in, show dashboard and logout button
+            <>
+              <Link to={"/dashboard"}>
+                <Button>Dashboard</Button>
+              </Link>
+              <LogoutButton />
+            </>
           )}
         </HStack>
       </Flex>
@@ -61,3 +68,4 @@ const NavBar = () => {
 };
 
 export default NavBar;
+

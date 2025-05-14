@@ -6,6 +6,7 @@ import CreatePage from './pages/CreatePage';
 import  NavBar  from './components/NavBar';
 import Register from './pages/RegisterPage';
 import Login from './pages/LoginPage';
+import DashBoard from './pages/Dashboard';
 
 function App() {
   console.log("App is rendering");
@@ -18,6 +19,7 @@ function App() {
       <Route path="/create" element={<CreatePage/>} />
       <Route path="/register" element={<Register/>}/>
       <Route path='/login' element={<Login/>} />
+      <Route path='/dashboard' element={<DashBoard/>} />
       </Routes>
     </Box>
     </>
