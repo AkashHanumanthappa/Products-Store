@@ -7,6 +7,9 @@ import NavBar from "./components/NavBar";
 import Login from "./pages/Login"
 import Register from "./pages/Register"
 import MyProductsPage from "./components/Products"
+import UpdateProduct from "./pages/updatePage";
+import InquirePage from "./pages/InquirePage";
+import Footer from "./components/Footer";
 
 function App() {
 	return (
@@ -18,7 +21,10 @@ function App() {
 				<Route path='/login' element={<Login />} />
 				<Route path="/register" element={<Register/>}/>
 				<Route path="/products" element={<MyProductsPage/>} />
+				<Route path="/edit/:productId" element={<UpdateProduct />} />
+				<Route path="/Inquire/:id" element={<InquirePage />} />
 			</Routes>
+			 <Footer />
 		</Box>
 	);
 }

@@ -65,55 +65,67 @@ createProduct: async (newProduct) => {
   }
 },
 
-  updateProduct: async (pid, updatedProduct) => {
-    try {
-      const res = await fetch(`/api/products/${pid}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedProduct),
-      });
-      const data = await res.json();
+ updateProduct: async (pid, updatedProduct) => {
+  try {
+    const token = localStorage.getItem("token"); // or wherever you store your JWT
 
-      if (!data.success) {
-        return { success: false, message: data.message || "Failed to update product" };
-      }
+    const res = await fetch(`/api/products/${pid}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,   // Add this line
+      },
+      body: JSON.stringify(updatedProduct),
+    });
 
-      set((state) => ({
-        products: state.products.map((product) =>
-          product._id === pid ? data.data : product
-        ),
-      }));
+    const data = await res.json();
 
-      return { success: true, message: data.message };
-    } catch (error) {
-      console.error("Update Product Error:", error);
-      return { success: false, message: "Server Error" };
+    if (!data.success) {
+      return { success: false, message: data.message || "Failed to update product" };
     }
-  },
 
-  deleteProduct: async (pid) => {
-    try {
-      const res = await fetch(`/api/products/${pid}`, {
-        method: "DELETE",
-      });
-      const data = await res.json();
+    set((state) => ({
+      products: state.products.map((product) =>
+        product._id === pid ? data.data : product
+      ),
+    }));
 
-      if (!data.success) {
-        return { success: false, message: data.message || "Failed to delete product" };
-      }
+    return { success: true, message: data.message };
+  } catch (error) {
+    console.error("Update Product Error:", error);
+    return { success: false, message: "Server Error" };
+  }
+},
 
-      set((state) => ({
-        products: state.products.filter((product) => product._id !== pid),
-      }));
 
-      return { success: true, message: data.message };
-    } catch (error) {
-      console.error("Delete Product Error:", error);
-      return { success: false, message: "Server Error" };
+deleteProduct: async (pid) => {
+  try {
+    const token = localStorage.getItem("token"); // or wherever you store it
+
+    const res = await fetch(`/api/products/${pid}`, {
+      method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      return { success: false, message: data.message || "Failed to delete product" };
     }
-  },
+
+    set((state) => ({
+      products: state.products.filter((product) => product._id !== pid),
+    }));
+
+    return { success: true, message: data.message };
+  } catch (error) {
+    console.error("Delete Product Error:", error);
+    return { success: false, message: "Server Error" };
+  }
+},
+
   fetchMyProducts: async () => {
   try {
     const token = localStorage.getItem("token");
