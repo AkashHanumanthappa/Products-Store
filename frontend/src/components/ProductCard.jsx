@@ -7,8 +7,8 @@ const ProductCard = ({ product }) => {
   const bg = useColorModeValue("white", "gray.800");
   const navigate = useNavigate();
 
-  const handleBuyClick = (productId) => {
-    navigate(`/inquire/${productId}`);
+  const handleBuyClick = () => {
+    navigate(`/inquire/${product._id}`);
   };
 
   return (
