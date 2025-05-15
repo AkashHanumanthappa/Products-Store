@@ -22,37 +22,34 @@ export const useAuthStore = create((set) => {
     },
 
     registerUser: async (newUser) => {
-      if (!newUser.name || !newUser.email || !newUser.password) {
-        return { success: false, message: "Please fill in all fields." };
+      // backend expects username, email, password, profilePic
+      if (!newUser.username || !newUser.email || !newUser.password) {
+        return { success: false, message: "Please fill in all required fields." };
       }
 
       try {
-        const res = await fetch("/api/user/register", {
+        const res = await fetch("/api/users/register", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(newUser),
         });
-
-        if (!res.ok) {
-          const errorText = await res.text();
-          let message = "";
-
-          if (res.status === 409) {
-            message = "User already exists with this email.";
-          } else {
-            message = errorText || `Error ${res.status}: Unable to register.`;
-          }
-
-          return { success: false, message };
+        
+          if (res.status === 413) {
+          return { success: false, message: "Image size exceeds 2MB." };
         }
 
         const data = await res.json();
-        set({ user: data.user });
-        localStorage.setItem("user", JSON.stringify(data.user));
-        return { success: true, message: "Registration successful!" };
 
+        if (!data.success) {
+          return { success: false, message: data.message || "Failed to register." };
+        }
+
+        // The backend returns newUser object in data.data
+        set({ user: data.data });
+        localStorage.setItem("user", JSON.stringify(data.data));
+        return { success: true, message: "Registration successful!" };
       } catch (err) {
         return {
           success: false,
@@ -63,11 +60,11 @@ export const useAuthStore = create((set) => {
 
     loginUser: async (loginData) => {
       if (!loginData.email || !loginData.password) {
-        return { success: false, message: "Please fill in all fields." };
+        return { success: false, message: "Please fill in all required fields." };
       }
 
       try {
-        const res = await fetch("/api/user/login", {
+        const res = await fetch("/api/users/login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -75,17 +72,19 @@ export const useAuthStore = create((set) => {
           body: JSON.stringify(loginData),
         });
 
-        if (!res.ok) {
-          const errorText = await res.text();
-          return {
-            success: false,
-            message: `Error ${res.status}: ${errorText}`,
-          };
+        const data = await res.json();
+
+        if (!data.success) {
+          return { success: false, message: data.message || "Login failed." };
         }
 
-        const data = await res.json();
-        set({ user: data.user });
-        localStorage.setItem("user", JSON.stringify(data.user));
+        // backend returns token and user inside data.data.user
+        set({ user: data.data.user });
+        localStorage.setItem("token", data.data.token);
+        localStorage.setItem("user", JSON.stringify(data.data.user));
+        
+        console.log("Login response:", data);
+
         return { success: true, message: "Login successful!" };
       } catch (err) {
         return {
@@ -97,6 +96,7 @@ export const useAuthStore = create((set) => {
 
     logoutUser: () => {
       localStorage.removeItem("user");
+      localStorage.removeItem("token");
       set({ user: null });
     },
 
@@ -110,7 +110,7 @@ export const useAuthStore = create((set) => {
         const token = localStorage.getItem("token");
         if (!token) return;
 
-        const res = await fetch("/api/user/me", {
+        const res = await fetch("/api/auth/me", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -119,11 +119,17 @@ export const useAuthStore = create((set) => {
         if (!res.ok) throw new Error("Unauthorized");
 
         const data = await res.json();
-        set({ user: data.user });
-        localStorage.setItem("user", JSON.stringify(data.user));
+
+        if (!data.success) {
+          throw new Error(data.message || "Failed to fetch user");
+        }
+
+        set({ user: data.data });
+        localStorage.setItem("user", JSON.stringify(data.data));
       } catch (err) {
-        console.warn("Failed to fetch user from /api/user/me:", err.message);
+        console.warn("Failed to fetch user from /api/auth/me:", err.message);
         localStorage.removeItem("user");
+        localStorage.removeItem("token");
         set({ user: null });
       }
     },

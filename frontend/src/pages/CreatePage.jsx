@@ -1,74 +1,187 @@
-import { Box, Button, Container, Heading, Input, useColorModeValue, useToast, VStack } from "@chakra-ui/react";
-import { useState } from "react";
-import React from "react";
+import React, { useState } from "react";
+import {
+  Box,
+  Heading,
+  Input,
+  Button,
+  VStack,
+  Textarea,
+  Select,
+  useToast,
+} from "@chakra-ui/react";
 import { useProductStore } from "../store/product";
 
-const CreatePage = () => {
-	const [newProduct, setNewProduct] = useState({
-		name: "",
-		price: "",
-		image: "",
-	});
-	const toast = useToast();
+const CreateProduct = () => {
+  const toast = useToast();
+  const createProduct = useProductStore((state) => state.createProduct);
 
-	const { createProduct } = useProductStore();
+  const [formData, setFormData] = useState({
+    name: "",
+    price: "",
+    image: "", // will hold base64 string
+    description: "",
+    category: "general",
+  });
 
-	const handleAddProduct = async () => {
-		const { success, message } = await createProduct(newProduct);
-		if (!success) {
-			toast({
-				title: "Error",
-				description: message,
-				status: "error",
-				isClosable: true,
-			});
-		} else {
-			toast({
-				title: "Success",
-				description: message,
-				status: "success",
-				isClosable: true,
-			});
-		}
-		setNewProduct({ name: "", price: "", image: "" });
-	};
+  const [uploading, setUploading] = useState(false);
 
-	return (
-		<Container maxW={"container.sm"}>
-			<VStack spacing={8}>
-				<Heading as={"h1"} size={"2xl"} textAlign={"center"} mb={8}>
-					Create New Product
-				</Heading>
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
-				<Box w={"full"} bg={useColorModeValue("white", "gray.800")} p={6} rounded={"lg"} shadow={"md"}>
-					<VStack spacing={4}>
-						<Input
-							placeholder='Product Name'
-							name='name'
-							value={newProduct.name}
-							onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-						/>
-						<Input
-							placeholder='Price'
-							name='price'
-							type='number'
-							value={newProduct.price}
-							onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-						/>
-						<Input
-							placeholder='Image URL'
-							name='image'
-							value={newProduct.image}
-							onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })}
-						/>
+  // Convert selected image file to base64 string
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-						<Button colorScheme='blue' onClick={handleAddProduct} w='full'>
-							Add Product
-						</Button>
-					</VStack>
-				</Box>
-			</VStack>
-		</Container>
-	);
+    if (file.size > 2 * 1024 * 1024) { // 2MB limit
+      toast({
+        title: "File too large",
+        description: "Image size exceeds 2MB.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFormData((prev) => ({
+        ...prev,
+        image: reader.result, // base64 string
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSubmit = async () => {
+    if (isNaN(formData.price) || Number(formData.price) <= 0) {
+      toast({
+        title: "Invalid Price",
+        description: "Please enter a valid positive number for price.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+    if (!formData.image) {
+      toast({
+        title: "No Image",
+        description: "Please upload an image file.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const productData = {
+      name: formData.name.trim(),
+      price: Number(formData.price),
+      image: formData.image, // base64 string
+      description: formData.description.trim(),
+      category: formData.category,
+    };
+
+    const { success, message } = await createProduct(productData);
+
+    toast({
+      title: success ? "Success" : "Error",
+      description: message,
+      status: success ? "success" : "error",
+      duration: 3000,
+      isClosable: true,
+    });
+
+    if (success) {
+      setFormData({
+        name: "",
+        price: "",
+        image: "",
+        description: "",
+        category: "general",
+      });
+    }
+  };
+
+  return (
+    <Box maxW="md" mx="auto" mt={10} p={6} boxShadow="md" borderRadius="md">
+      <Heading mb={6} textAlign="center">
+        Create Product
+      </Heading>
+      <VStack spacing={4}>
+        <Input
+          placeholder="Product Name"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          isRequired
+        />
+        <Input
+          placeholder="Price"
+          name="price"
+          value={formData.price}
+          onChange={handleChange}
+          type="number"
+          min="0"
+          step="0.01"
+          isRequired
+        />
+
+        {/* File input for image upload */}
+        <Input
+          type="file"
+          accept="image/*"
+          onChange={handleImageChange}
+          isRequired={!formData.image}
+        />
+        {/* Optional: preview the uploaded image */}
+        {formData.image && (
+          <Box boxSize="150px" mt={2}>
+            <img
+              src={formData.image}
+              alt="Preview"
+              style={{ maxWidth: "100%", maxHeight: "150px", objectFit: "contain" }}
+            />
+          </Box>
+        )}
+
+        <Textarea
+          placeholder="Description (optional)"
+          name="description"
+          value={formData.description}
+          onChange={handleChange}
+        />
+        <Select
+          name="category"
+          value={formData.category}
+          onChange={handleChange}
+        >
+          <option value="general">General</option>
+          <option value="electronics">Electronics</option>
+          <option value="fashion">Fashion</option>
+          <option value="books">Books</option>
+          <option value="other">Other</option>
+        </Select>
+
+        <Button
+          colorScheme="teal"
+          width="full"
+          onClick={handleSubmit}
+          isDisabled={!formData.name || !formData.price || !formData.image}
+          isLoading={uploading}
+        >
+          Create Product
+        </Button>
+      </VStack>
+    </Box>
+  );
 };
-export default CreatePage;
+
+export default CreateProduct;

@@ -14,9 +14,22 @@ const productSchema = new mongoose.Schema(
 			type: String,
 			required: true,
 		},
+		description: {
+			type: String,
+			default: "",
+		},
+		category: {
+			type: String,
+			default: "general",
+		},
+		user: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "User", // Reference to the User model
+			required: true,
+		},
 	},
 	{
-		timestamps: true, // createdAt, updatedAt
+		timestamps: true, // adds createdAt and updatedAt
 	}
 );
 
