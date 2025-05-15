@@ -22,8 +22,8 @@ function MyProductsPage() {
     fetchMyProducts();
   }, [fetchMyProducts]);
 
-  const handleEdit = () => {
-    navigate(`/edit/${product._id}`);
+  const handleEdit = (product_id) => {
+    navigate(`/edit/${product_id}`);
   };
 
   const handleDelete = async (productId) => {

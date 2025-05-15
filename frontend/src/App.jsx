@@ -22,7 +22,7 @@ function App() {
 				<Route path="/register" element={<Register/>}/>
 				<Route path="/products" element={<MyProductsPage/>} />
 				<Route path="/edit/:productId" element={<UpdateProduct />} />
-				<Route path="/Inquire/:id" element={<InquirePage />} />
+				<Route path="/inquire/:id" element={<InquirePage />} />
 			</Routes>
 			 <Footer />
 		</Box>
