@@ -1,0 +1,15 @@
+
+
+
+# Main routes
+/login /index.html 200
+/register /index.html 200
+/create /index.html 200
+/products /index.html 200
+
+# Dynamic routes
+/edit/* /index.html 200
+/inquire/* /index.html 200
+
+# Catchall rule
+/* /index.html 200

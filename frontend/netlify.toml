@@ -1,0 +1,48 @@
+# netlify.toml
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# First, specific routes that are causing problems
+[[redirects]]
+  from = "/login"
+  to = "/index.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/register"
+  to = "/index.html"
+  status = 200
+  force = true  
+
+[[redirects]]
+  from = "/create"
+  to = "/index.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/products"
+  to = "/index.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/edit/*"
+  to = "/index.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/inquire/*"
+  to = "/index.html"
+  status = 200
+  force = true
+
+# Then, the catchall rule
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = true
