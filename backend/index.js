@@ -26,10 +26,10 @@ const PORT = process.env.PORT || 5000;
 connectDB();
 
 // Middleware
-app.use(cors({
-  origin: ["http://localhost:5173", "https://products-store-frontend.onrender.com", "https://your-frontend.netlify.app"], // Add all allowed origins
-  credentials: true,
-}));
+// app.use(cors({
+//   origin: ["http://localhost:5173", "https://products-store-frontend.onrender.com", "https://your-frontend.netlify.app"], // Add all allowed origins
+//   credentials: true,
+// }));
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -37,13 +37,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/products", productRoutes);
 app.use("/api/users", userRoutes);
 
-// Serve frontend (in production only)
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "/frontend/dist")));
-  app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
-  });
-}
+// // Serve frontend (in production only)
+// if (process.env.NODE_ENV === "production") {
+//   app.use(express.static(path.join(__dirname, "/frontend/dist")));
+//   app.get("*", (req, res) => {
+//     res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+//   });
+// }
 
 // Start the server
 app.listen(PORT, () => {
