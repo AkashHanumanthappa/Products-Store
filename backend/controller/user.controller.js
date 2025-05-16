@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 
 // Register a new user
 export const registerUser = async (req, res) => {
-	const { username, email, password, profilePic } = req.body;
+	const { username, email, password } = req.body;
 
 	if (!username || !email || !password) {
 		return res.status(400).json({ success: false, message: "All fields are required" });
@@ -23,7 +23,6 @@ export const registerUser = async (req, res) => {
 			username,
 			email,
 			password: hashedPassword,
-			profilePic,
 		});
 
 		await newUser.save();
@@ -71,7 +70,6 @@ export const loginUser = async (req, res) => {
 					username: user.username,
 					email: user.email,
 					role: user.role,
-					profilePic: user.profilePic,
 				},
 			},
 		});

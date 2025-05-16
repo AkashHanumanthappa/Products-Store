@@ -1,5 +1,9 @@
 import { create } from "zustand";
 
+const API_URL = import.meta.env.PROD 
+  ? 'https://products-store-akash-h.onrender.com/api'
+  : '/api';
+
 export const useAuthStore = create((set) => {
   // Load user from localStorage safely on store initialization
   let savedUser = null;
@@ -21,7 +25,7 @@ export const useAuthStore = create((set) => {
       localStorage.setItem("user", JSON.stringify(user));
     },
 
-      registerUser: async ({ username, email, password, profilePic }) => {
+      registerUser: async ({ username, email, password }) => {
     if (!username || !email || !password) {
       return { success: false, message: "All fields are required" };
     }
@@ -30,7 +34,7 @@ export const useAuthStore = create((set) => {
       const res = await fetch("/api/users/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, email, password, profilePic }),
+        body: JSON.stringify({ username, email, password }),
       });
 
       const data = await res.json();

@@ -17,8 +17,7 @@ const Register = () => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
-    password: '',
-    profilePic: '',
+    password: ''
   });
 
   const [loading, setLoading] = useState(false);
@@ -45,13 +44,7 @@ const Register = () => {
       return;
     }
 
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData((prev) => ({ ...prev, profilePic: reader.result }));
-      };
-      reader.readAsDataURL(file);
-    }
+
   };
 
   const handleRegister = async () => {
@@ -100,22 +93,6 @@ const Register = () => {
       <VStack spacing={4}>
         <Text fontWeight="semibold">Choose your profile pic</Text>
 
-        {formData.profilePic && (
-          <Image
-            src={formData.profilePic}
-            alt="Profile Preview"
-            boxSize="100px"
-            objectFit="cover"
-            borderRadius="md"
-          />
-        )}
-
-        <Input
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          p={1}
-        />
 
         <Input
           name="username"
