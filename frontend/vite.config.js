@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      "/api": "http://localhost:5000",
+      "/api": "https://products-store-kajx.onrender.com",
     },
   },
 });
