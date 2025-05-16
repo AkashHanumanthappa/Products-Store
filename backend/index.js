@@ -22,6 +22,11 @@ const PORT = process.env.PORT || 5000;
 connectDB();
 
 // Middleware
+app.use(cors({
+  origin:[ "http://localhost:3000","http://localhost:5173", "http://localhost:5000","https://lucent-duckanoo-5486d7.netlify.app","https://verdant-basbousa-3c8aff.netlify.app"],
+   methods: '*', // Allowed method
+  credentials: true
+}));
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
