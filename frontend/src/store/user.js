@@ -1,5 +1,10 @@
 import { create } from "zustand";
 
+// Get the API URL from environment variables
+const API_URL = import.meta.env.PROD 
+  ? 'https://products-store-akash-h.onrender.com/api'
+  : '/api';
+
 export const useAuthStore = create((set) => {
   // Load user from localStorage safely on store initialization
   let savedUser = null;
@@ -28,7 +33,7 @@ export const useAuthStore = create((set) => {
       }
 
       try {
-        const res = await fetch("/api/users/register", {
+        const res = await fetch(`${API_URL}/users/register`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -36,7 +41,7 @@ export const useAuthStore = create((set) => {
           body: JSON.stringify(newUser),
         });
         
-          if (res.status === 413) {
+        if (res.status === 413) {
           return { success: false, message: "Image size exceeds 2MB." };
         }
 
@@ -64,7 +69,7 @@ export const useAuthStore = create((set) => {
       }
 
       try {
-        const res = await fetch("/api/users/login", {
+        const res = await fetch(`${API_URL}/users/login`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -110,7 +115,7 @@ export const useAuthStore = create((set) => {
         const token = localStorage.getItem("token");
         if (!token) return;
 
-        const res = await fetch("/api/auth/me", {
+        const res = await fetch(`${API_URL}/auth/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
