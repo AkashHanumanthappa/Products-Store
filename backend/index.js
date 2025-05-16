@@ -13,8 +13,11 @@ import userRoutes from "./routes/user.route.js";
 dotenv.config();
 
 // Fix __dirname for ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
+
+const __dirname = path.resolve();
+
 
 const app = express();
 const PORT = process.env.PORT || 5000;
