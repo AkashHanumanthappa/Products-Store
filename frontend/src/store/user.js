@@ -25,30 +25,30 @@ export const useAuthStore = create((set) => {
       localStorage.setItem("user", JSON.stringify(user));
     },
 
-      registerUser: async ({ username, email, password }) => {
-    if (!username || !email || !password) {
-      return { success: false, message: "All fields are required" };
-    }
-
-    try {
-      const res = await fetch("/api/users/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, email, password }),
-      });
-
-      const data = await res.json();
-
-      if (!data.success) {
-        return { success: false, message: data.message || "Registration failed" };
+    registerUser: async ({ username, email, password }) => {
+      if (!username || !email || !password) {
+        return { success: false, message: "All fields are required" };
       }
 
-      return { success: true, message: data.message, data: data.user };
-    } catch (error) {
-      console.error("Register Error:", error);
-      return { success: false, message: "Network error: " + error.message };
-    }
-  },
+      try {
+        const res = await fetch(`${API_URL}/users/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, email, password }),
+        });
+
+        const data = await res.json();
+
+        if (!data.success) {
+          return { success: false, message: data.message || "Registration failed" };
+        }
+
+        return { success: true, message: data.message, data: data.user };
+      } catch (error) {
+        console.error("Register Error:", error);
+        return { success: false, message: "Network error: " + error.message };
+      }
+    },
 
     loginUser: async (loginData) => {
       if (!loginData.email || !loginData.password) {
