@@ -1,16 +1,18 @@
 import express from "express";
 import dotenv from "dotenv";
-import path from "path";
+import { dirname } from "path";
 import cors from "cors";
 import { connectDB } from "./config/db.js";
-
+import { fileURLToPath } from 'url';
 import productRoutes from "./routes/product.route.js";
 import userRoutes from "./routes/user.route.js";  // Add this import
 
 dotenv.config();
 
 const app = express();
-const __dirname = path.resolve();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+console.log("__dirname:", __dirname);
 
 app.use(cors({
   origin: "http://localhost:5173",  // your React dev server URL
@@ -31,7 +33,12 @@ app.use("/api/products", productRoutes);
 app.use("/api/users", userRoutes);      // Mount user routes (register, login, admin, etc.)
 
 // Serve frontend in production
-
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+  app.get("*", (req, res) =>
+    res.sendFile(path.resolve(__dirname, "../frontend", "dist", "index.html"))
+  );
+}
 
 
 app.listen(PORT, () => {
