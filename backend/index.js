@@ -26,10 +26,10 @@ const PORT = process.env.PORT || 5000;
 connectDB();
 
 // Middleware
-// app.use(cors({
-//   origin: ["http://localhost:5173", "https://products-store-frontend.onrender.com", "https://your-frontend.netlify.app"], // Add all allowed origins
-//   credentials: true,
-// }));
+app.use(cors({
+  origin: ["http://localhost:5173", "https://products-store-frontend.onrender.com", "https://verdant-basbousa-3c8aff.netlify.app", "https://products-store-akash-h.onrender.com"], // Add all allowed origins
+  credentials: true,
+}));
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
