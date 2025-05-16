@@ -36,10 +36,10 @@ app.use("/api/users", userRoutes);
 
 // Serve frontend (in production only)
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+  app.use(express.static(path.join(__dirname, "/frontend/dist")));
 
   app.get("*", (_, res) => {
-    res.sendFile(path.resolve(__dirname, "../frontend", "dist", "index.html"));
+    res.sendFile(path.resolve(__dirname, "/frontend", "dist", "index.html"));
   });
 }
 
