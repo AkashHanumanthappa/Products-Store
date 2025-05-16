@@ -1,10 +1,5 @@
 import { create } from "zustand";
 
-// Get the API URL from environment variables
-const API_URL = import.meta.env.PROD 
-  ? 'https://products-store-akash-h.onrender.com/api'
-  : '/api';
-
 export const useAuthStore = create((set) => {
   // Load user from localStorage safely on store initialization
   let savedUser = null;
@@ -26,42 +21,30 @@ export const useAuthStore = create((set) => {
       localStorage.setItem("user", JSON.stringify(user));
     },
 
-    registerUser: async (newUser) => {
-      // backend expects username, email, password, profilePic
-      if (!newUser.username || !newUser.email || !newUser.password) {
-        return { success: false, message: "Please fill in all required fields." };
+      registerUser: async ({ username, email, password, profilePic }) => {
+    if (!username || !email || !password) {
+      return { success: false, message: "All fields are required" };
+    }
+
+    try {
+      const res = await fetch("/api/users/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, email, password, profilePic }),
+      });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        return { success: false, message: data.message || "Registration failed" };
       }
 
-      try {
-        const res = await fetch(`${API_URL}/users/register`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(newUser),
-        });
-        
-        if (res.status === 413) {
-          return { success: false, message: "Image size exceeds 2MB." };
-        }
-
-        const data = await res.json();
-
-        if (!data.success) {
-          return { success: false, message: data.message || "Failed to register." };
-        }
-
-        // The backend returns newUser object in data.data
-        set({ user: data.data });
-        localStorage.setItem("user", JSON.stringify(data.data));
-        return { success: true, message: "Registration successful!" };
-      } catch (err) {
-        return {
-          success: false,
-          message: `Network error: ${err.message}`,
-        };
-      }
-    },
+      return { success: true, message: data.message, data: data.user };
+    } catch (error) {
+      console.error("Register Error:", error);
+      return { success: false, message: "Network error: " + error.message };
+    }
+  },
 
     loginUser: async (loginData) => {
       if (!loginData.email || !loginData.password) {
