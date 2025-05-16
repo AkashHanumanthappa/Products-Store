@@ -22,24 +22,36 @@ const PORT = process.env.PORT || 5000;
 // Connect to MongoDB
 connectDB();
 
-// Middleware
-app.use(cors({
-  origin: ["http://localhost:5173", "https://products-store-frontend.onrender.com", "https://your-frontend.netlify.app"], // Add all allowed origins
-  credentials: true,
-}));
+// Middlewarer
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
+
+
+
+// Add security headers to address CSP issues
+app.use((req, res, next) => {
+  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';");
+  next();
+});
+
+// Static files for all environments
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
 // API Routes
 app.use("/api/products", productRoutes);
 app.use("/api/users", userRoutes);
 
+// Root route for development mode
+app.get('/', (req, res) => {
+  res.json({ message: 'API is running...' });
+});
+
 // Serve frontend (in production only)
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-  app.get("*", (_, res) => {
-    res.sendFile(path.resolve(__dirname, "../frontend", "dist", "index.html"));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
   });
 }
 
