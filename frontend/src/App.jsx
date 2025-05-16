@@ -10,11 +10,12 @@ import MyProductsPage from "./components/Products"
 import UpdateProduct from "./pages/updatePage";
 import InquirePage from "./pages/InquirePage";
 import Footer from "./components/Footer";
-
+import RouterFix from "./utils/RouterFix";
 function App() {
 	return (
 		<Box minH={"100vh"} bg={useColorModeValue("gray.100", "gray.900")}>
 			<NavBar />
+		    <RouterFix /> 
 			<Routes>
 				<Route path='/' element={<HomePage />} />
 				<Route path='/create' element={<CreatePage />} />

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { isValidEmail} from "../utils/emailValidate";
+
 export const useAuthStore = create((set) => {
   // Load user from localStorage safely on store initialization
   let savedUser = null;
@@ -24,10 +24,6 @@ export const useAuthStore = create((set) => {
       registerUser: async ({ username, email, password, profilePic }) => {
     if (!username || !email || !password) {
       return { success: false, message: "All fields are required" };
-    }
-
-    if (!isValidEmail(email)) {
-      return { success: false, message: "Invalid email address" };
     }
 
     try {
@@ -56,7 +52,7 @@ export const useAuthStore = create((set) => {
       }
 
       try {
-        const res = await fetch("/api/users/login", {
+        const res = await fetch(`${API_URL}/users/login`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -102,7 +98,7 @@ export const useAuthStore = create((set) => {
         const token = localStorage.getItem("token");
         if (!token) return;
 
-        const res = await fetch("/api/auth/me", {
+        const res = await fetch(`${API_URL}/auth/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
