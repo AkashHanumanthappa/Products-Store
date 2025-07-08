@@ -35,10 +35,10 @@ export const useAuthStore = create((set) => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ username, email, password }),
+          
         });
 
         const data = await res.json();
-
         if (!data.success) {
           return { success: false, message: data.message || "Registration failed" };
         }
