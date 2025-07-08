@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 const API_URL = import.meta.env.PROD 
-  ? 'https://products-store-akash-h.onrender.com/api'
+  ? 'https://products-store-hi7r.onrender.com/api'
   : '/api';
 
 export const useAuthStore = create((set) => {

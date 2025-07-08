@@ -19,7 +19,7 @@ connectDB();
 
 // Middleware
 app.use(cors({
-  origin:[ "http://localhost:3000","http://localhost:5173", "http://localhost:5000","https://lucent-duckanoo-5486d7.netlify.app","https://verdant-basbousa-3c8aff.netlify.app"],
+  origin:[ "http://localhost:3000","http://localhost:5173", "http://localhost:5000","https://lucent-duckanoo-5486d7.netlify.app","https://resplendent-cajeta-fc27a7.netlify.app"],
    methods: '*', 
   credentials: true
 }));
